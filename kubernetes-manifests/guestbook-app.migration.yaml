@@ -1,0 +1,43 @@
+# This file creates a job that migrates the Postgres database. The job creates a
+# pod from the specified Docker image, wait for the database to get ready, and
+# run database migration once the Postgres database service is ready to receive
+# connections.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: python-guestbook-migration
+spec:
+  template:
+    metadata:
+      name: python-guestbook-migration
+    spec:
+      initContainers:
+      # Wait for the database to get ready before doing migration
+      - name: check-db-ready
+        image: postgres
+        command: ['sh', '-c',
+          'until pg_isready -h python-guestbook-db -p 5432;
+          do echo waiting for database; sleep 2; done;']
+      containers:
+      - name: python-guestbook-migration
+        image: python-guestbook-frontend-django
+        command: [ "/bin/sh", "-c" ]
+        args: [
+          "
+            python manage.py migrate &&
+            python manage.py shell -c \"from django.contrib.auth.models import User;
+            User.objects.create_superuser('admin', 'admin@example.com', 'admin')\"
+          "
+        ]
+        env:
+        - name: DATABASE_NAME
+          value: "postgres"
+        - name: DATABASE_USER
+          value: "postgres"
+        - name: DATABASE_HOST
+          value: "python-guestbook-db"
+        - name: DATABASE_PORT
+          value: "5432"
+        - name: DATABASE_PASSWORD
+          value: "test"
+      restartPolicy: OnFailure
