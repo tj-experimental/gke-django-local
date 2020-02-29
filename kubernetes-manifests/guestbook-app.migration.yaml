@@ -20,14 +20,14 @@ spec:
           do echo waiting for database; sleep 2; done;']
       containers:
       - name: python-guestbook-migration
-        image: python-guestbook-frontend-django
-        command: [ "/bin/sh", "-c" ]
-        args: [
-          "
-            python manage.py migrate &&
-            python manage.py shell -c \"from django.contrib.auth.models import User;
-            User.objects.create_superuser('admin', 'admin@example.com', 'admin')\"
-          "
+        image: python-guestbook-backend-django
+        command: [
+          "/bin/sh",
+          "-c",
+          "python manage.py migrate",
+          "&&",
+          "python manage.py shell -c \"from django.contrib.auth.models import User; User.objects
+          .create_superuser('admin', 'admin@example.com', 'admin')\"",
         ]
         env:
         - name: DATABASE_NAME

@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: python-guestbook-frontend
+  name: python-guestbook-backend
   labels:
     app: python-guestbook
-    tier: frontend
+    tier: backend
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: python-guestbook
-      tier: frontend
+      tier: backend
   template:
     metadata:
       labels:
         app: python-guestbook
-        tier: frontend
+        tier: backend
     spec:
       initContainers:
       # Wait for the database to get ready before starting the server, otherwise
@@ -26,8 +26,8 @@ spec:
           'until pg_isready -h python-guestbook-db -p 5432;
           do echo waiting for database; sleep 2; done;']
       containers:
-      - name: frontend
-        image: python-guestbook-frontend-django
+      - name: backend
+        image: python-guestbook-backend-django
         ports:
         - name: http-server
           containerPort: 8080
