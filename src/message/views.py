@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from .models import Message
 
+
 def _format_date(date_obj):
     """Format the datetime object in a human readable way."""
     now = timezone.now()
@@ -17,6 +18,7 @@ def _format_date(date_obj):
             return '{} {}s ago'.format(n, unit)
     return 'just now'
 
+
 def main(request):
     all_msgs = Message.objects.order_by('-id')
     msg_list = [
@@ -25,6 +27,7 @@ def main(request):
         for msg in all_msgs
     ]
     return render(request, 'home.html', {'messages': msg_list})
+
 
 def post(request):
     message = Message.objects.create(
